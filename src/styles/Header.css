@@ -1,0 +1,26 @@
+.header {
+  display: flex;
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 100%;
+  background-color: var(--red50);
+  /* width: 100% - "250px"; */
+  height: 60px;
+  border-bottom: 1px solid var(--red300);
+  justify-content: flex-end;
+  align-items: center;
+  margin-bottom: 20px;
+  z-index: 500;
+}
+
+.header-icons svg {
+  margin-right: 32px;
+  padding-left: 16px;
+  border-left: 1px solid var(--gray200);
+  color: var(--red400);
+  width: 24px;
+  height: 24px;
+  font-size: 1.5rem;
+  cursor: pointer;
+}

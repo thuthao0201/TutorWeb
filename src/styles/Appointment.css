@@ -1,0 +1,88 @@
+.notification-item {
+  background-color: white;
+  border: 1px solid var(--red100);
+  border-radius: 10px;
+  padding: 16px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.notification-content {
+  display: flex;
+  flex: 3;
+}
+
+.student-avatar {
+  margin-right: 20px;
+}
+
+.student-avatar img {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.notification-details {
+  flex: 1;
+}
+
+.notification-title {
+  color: #e53935;
+  font-size: 1.2rem;
+  margin-top: 0;
+  margin-bottom: 10px;
+}
+
+.notification-details ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.notification-details li {
+  margin-bottom: 5px;
+  font-size: 0.9rem;
+}
+
+.notification-details span {
+  font-weight: bold;
+  margin-right: 5px;
+}
+
+.notification-actions {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 10px;
+  min-width: 100px;
+}
+
+.action-button {
+  padding: 6px;
+  border-radius: 5px;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.3s ease;
+}
+
+.detail-button {
+  background-color: var(--white);
+  color: var(--red600);
+  border: 2px solid var(--red300);
+}
+
+.detail-button:hover {
+  background-color: var(--red100);
+  color: var(--red600);
+}
+
+.decline-button {
+  background-color: #e57373;
+  color: white;
+}
+
+.decline-button:hover {
+  background-color: #d32f2f;
+}

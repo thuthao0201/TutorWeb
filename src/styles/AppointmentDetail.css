@@ -1,0 +1,138 @@
+.appointment-detail-content {
+  position: fixed;
+  top: 20%;
+  right: 0;
+  background-color: var(--white);
+  width: 450px;
+  /* height: 70vh; */
+  max-width: 95%;
+  border-radius: 15px 0 0 15px;
+  padding: 30px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  z-index: 500;
+}
+
+.close-button {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background-color: #fff;
+  border: none;
+  width: 30px;
+  height: 30px;
+  /* border-radius: 50%; */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #666;
+  font-size: 16px;
+}
+
+.close-button:hover {
+  background-color: var(--white);
+  color: var(--red600);
+}
+
+.appointment-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.student-avatar {
+  margin-right: 15px;
+}
+
+.student-avatar img {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.appointment-header h2 {
+  margin: 0;
+  font-size: 1.6rem;
+  color: var(--gray400);
+}
+
+.appointment-info {
+  margin-bottom: 25px;
+  /* background-color: aqua; */
+}
+
+.detail-item {
+  margin-bottom: 6px;
+  display: flex;
+  flex-direction: row;
+}
+
+.detail-item p {
+  font-weight: bold;
+  margin: 0 15px 0 0;
+  color: var(--gray400);
+}
+
+.note-item {
+  margin: 25px 0;
+  padding-top: 15px;
+  border-top: 1px solid #dfdfdf;
+}
+
+.note-item p {
+  margin: 0;
+  font-weight: bold;
+  color: var(--gray300);
+  font-size: 0.95rem;
+}
+
+.appointment-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.action-button {
+  flex: 1;
+  padding: 12px 0;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+}
+
+.action-button.accept {
+  background-color: var(--white);
+  color: var(--red600);
+  border: 1px solid var(--red600);
+}
+
+.action-button.accept:hover {
+  background-color: var(--red50);
+}
+
+.action-button.decline {
+  background-color: var(--red300);
+  color: var(--white);
+}
+
+.action-button.decline:hover {
+  background-color: var(--red500);
+}
+
+/* Responsive styles */
+@media (max-width: 480px) {
+  .appointment-detail-content {
+    padding: 20px;
+  }
+
+  .appointment-actions {
+    flex-direction: column;
+  }
+
+  .action-button {
+    margin-bottom: 8px;
+  }
+}

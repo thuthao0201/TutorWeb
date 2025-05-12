@@ -1,0 +1,215 @@
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+}
+
+.home-container {
+  display: flex;
+  height: "100%";
+}
+
+.main-content {
+  margin-left: 250px;
+  margin-top: 60px;
+  padding: 20px;
+  flex: 1;
+  /* padding: 0 20px; */
+  background-color: var(--red50);
+  transition: margin-left 0.3s ease;
+}
+.sidebar.collapsed + .main-content {
+  margin-left: 60px;
+}
+
+/* Overview Section */
+.overview {
+  display: flex;
+  flex-direction: column;
+}
+.overview h3 {
+  font-size: 1.5rem;
+  margin: 0 20px 16px 20px;
+  color: var(--gray400);
+}
+.overview-row {
+  display: flex;
+  justify-content: space-between;
+  margin: 0 20px 20px 20px;
+}
+.overview-item {
+  background-color: var(--white);
+  border: 1px solid var(--red300);
+  padding: 0 15px;
+  border-radius: 8px;
+  text-align: left;
+  flex: 1;
+  margin: 0 10px;
+  box-shadow: 0 2px 4px var(--red200);
+}
+.overview-item h5 {
+  font-size: 1rem;
+  font-weight: lighter;
+  align-self: start;
+  margin: 16px 0 4px 0;
+  color: var(--gray400);
+}
+.overview-item p {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: var(--red600);
+  margin-top: 2px;
+}
+
+.include {
+  display: flex;
+  flex-direction: row;
+  margin-left: 20px;
+  gap: 10px;
+  /* justify-content: space-between; */
+}
+.content {
+  width: 100%;
+}
+.content h3 {
+  font-size: 1.5rem;
+  margin: 20px 0;
+  color: var(--gray400);
+}
+
+/* Lớp học hôm nay */
+.today-classes {
+  margin-bottom: 30px;
+}
+
+.class-cards {
+  display: flex;
+  gap: 20px;
+  overflow-x: auto;
+  padding-bottom: 10px;
+  background-color: var(--white);
+  padding: 20px;
+  border-radius: 8px;
+}
+
+.class-card {
+  min-width: 200px;
+  background-color: white;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border: 1px solid var(--red300);
+  display: flex;
+  flex-direction: column;
+}
+
+.student-info {
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.student-info img {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: 15px;
+}
+
+.student-info h4 {
+  font-size: 1rem;
+  margin: 0;
+}
+
+.class-details {
+  list-style-type: none;
+  padding: 0;
+  margin: 0 0 15px 0;
+}
+
+.class-details li {
+  margin-bottom: 8px;
+  display: flex;
+}
+
+.class-details li span:first-child {
+  font-weight: bold;
+  margin-right: 5px;
+}
+
+.highlight {
+  color: #e53935; /* Màu đỏ */
+}
+
+.view-details {
+  background-color: #e53935;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 10px 15px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: fit-content;
+  align-self: center;
+  /* margin-top: auto; */
+  transition: background-color 0.3s ease;
+}
+
+.view-details:hover {
+  background-color: var(--red600);
+}
+
+.arrow {
+  font-size: 18px;
+}
+
+.notifications {
+  /* background-color: var(--white); */
+  border-radius: 10px;
+  /* padding: 20px; */
+  margin-bottom: 30px;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.view-all {
+  color: #888;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+}
+
+.arrow-right {
+  margin-left: 5px;
+  font-size: 1.2rem;
+}
+
+.notification-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.calendar-section {
+  width: 40%;
+  justify-items: center;
+  margin: 0 20px 0 0;
+  /* background-color: #333; */
+}
+@media (max-width: 768px) {
+  .notification-item {
+    flex-direction: column;
+  }
+
+  .notification-actions {
+    flex-direction: row;
+    margin-top: 15px;
+  }
+}
