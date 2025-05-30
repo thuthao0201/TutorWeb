@@ -25,6 +25,8 @@ export default function Schedule() {
         const classesResponse = await api.get("/api/classes");
 
         if (classesResponse.status === "success") {
+          console.log("Classes data:", classesResponse.data);
+
           // Format class data for Calendar component
           const formattedClasses = classesResponse.data.map((classItem) => ({
             id: classItem._id,
@@ -68,6 +70,7 @@ export default function Schedule() {
               sessions: classItem.day, // Pass the day directly for Calendar component
               price: `${classItem.classPrice}`,
             },
+            joinUrl: classItem.joinUrl,
           }));
 
           setClasses(formattedClasses);

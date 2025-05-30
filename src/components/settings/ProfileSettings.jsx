@@ -1,6 +1,7 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { IoAddCircle } from "react-icons/io5";
 import { MdOutlineVerified } from "react-icons/md";
+import { ApiClient } from "../../config/api";
 
 const ProfileSettings = ({
   profileData,
@@ -11,7 +12,120 @@ const ProfileSettings = ({
   triggerFileInput,
   fileInputRef,
   handleImageUpload,
+  onProfileUpdate,
 }) => {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const api = ApiClient();
+
+  // Fetch profile data on component mount
+  useEffect(() => {
+    fetchProfileData();
+  }, []);
+
+  const fetchProfileData = async () => {
+    setLoading(true);
+    try {
+      const response = await api.get("/api/tutors/profile");
+      if (response && response.status === "success") {
+        const tutorData = response.data;
+        const transformedData = {
+          fullName: tutorData.userId.name,
+          email: tutorData.userId.email,
+          phone: tutorData.userId.phone,
+          profileImage: `http://localhost:3000${tutorData.userId.avatar}`,
+          bio: tutorData.introduce,
+          major: tutorData.specialized,
+          education: tutorData.degree,
+          certificates: tutorData.hasCertificate,
+          experiences: tutorData.experiences,
+          hourlyRate: tutorData.classPrice,
+          teachingDetails: tutorData.subjects.map((subject) => ({
+            subject: subject.name,
+            levels: subject.grades.map((grade) => `Lớp ${grade}`),
+          })),
+        };
+
+        if (onProfileUpdate) {
+          onProfileUpdate(transformedData);
+        }
+      }
+    } catch (err) {
+      console.error("Error fetching profile:", err);
+      setError("Không thể tải thông tin profile");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const updateProfile = async (updatedData) => {
+    setLoading(true);
+    try {
+      const response = await api.put("/api/tutors/profile", {
+        phone: updatedData.phone,
+        introduce: updatedData.bio,
+        experiences: updatedData.experiences,
+      });
+
+      if (response && response.status === "success") {
+        await fetchProfileData(); // Refresh data
+        return true;
+      }
+      return false;
+    } catch (err) {
+      console.error("Error updating profile:", err);
+      setError("Không thể cập nhật thông tin");
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const uploadProfileImage = async (imageFile) => {
+    setLoading(true);
+    try {
+      const formData = new FormData();
+      formData.append("avatar", imageFile);
+
+      const response = await api.post("/api/users/upload-avatar", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      if (response && response.status === "success") {
+        await fetchProfileData(); // Refresh data
+        return true;
+      }
+      return false;
+    } catch (err) {
+      console.error("Error uploading image:", err);
+      setError("Không thể tải lên ảnh đại diện");
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading && !profileData.fullName) {
+    return (
+      <div className="settings-content">
+        <div className="loading-state">Đang tải thông tin profile...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="settings-content">
+        <div className="error-state">
+          {error}
+          <button onClick={fetchProfileData}>Thử lại</button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="settings-content">
       <div className="profile-header">
@@ -27,7 +141,12 @@ const ProfileSettings = ({
             ref={fileInputRef}
             style={{ display: "none" }}
             accept="image/*"
-            onChange={handleImageUpload}
+            onChange={(e) => {
+              handleImageUpload(e);
+              if (e.target.files[0]) {
+                uploadProfileImage(e.target.files[0]);
+              }
+            }}
           />
         </div>
         <div className="profile-info">

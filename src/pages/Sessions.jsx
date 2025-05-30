@@ -25,6 +25,9 @@ export default function Sessions() {
   const [searchText, setSearchText] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [subjectFilter, setSubjectFilter] = useState("all");
+  const [gradeFilter, setGradeFilter] = useState("all");
+  const [dayFilter, setDayFilter] = useState("all");
+  const [timeSlotFilter, setTimeSlotFilter] = useState("all");
 
   const api = ApiClient();
 
@@ -83,6 +86,70 @@ export default function Sessions() {
     return nextDate;
   };
 
+  const calculateTotalSessions = (startDate, endDate, day) => {
+    const daysOfWeek = {
+      Sunday: 0,
+      Monday: 1,
+      Tuesday: 2,
+      Wednesday: 3,
+      Thursday: 4,
+      Friday: 5,
+      Saturday: 6,
+    };
+
+    const targetDayIndex = daysOfWeek[day];
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+
+    let count = 0;
+    let current = new Date(start);
+
+    // Find the first occurrence of the target day from start date
+    while (current.getDay() !== targetDayIndex && current <= end) {
+      current.setDate(current.getDate() + 1);
+    }
+
+    // Count all occurrences of the target day between start and end
+    while (current <= end) {
+      count++;
+      current.setDate(current.getDate() + 7); // Move to next week
+    }
+
+    return count;
+  };
+
+  const calculateCompletedSessions = (startDate, day, totalSessions) => {
+    const daysOfWeek = {
+      Sunday: 0,
+      Monday: 1,
+      Tuesday: 2,
+      Wednesday: 3,
+      Thursday: 4,
+      Friday: 5,
+      Saturday: 6,
+    };
+
+    const targetDayIndex = daysOfWeek[day];
+    const start = new Date(startDate);
+    const now = new Date();
+
+    let count = 0;
+    let current = new Date(start);
+
+    // Find the first occurrence of the target day from start date
+    while (current.getDay() !== targetDayIndex && current <= now) {
+      current.setDate(current.getDate() + 1);
+    }
+
+    // Count completed sessions (past occurrences of the target day)
+    while (current <= now) {
+      count++;
+      current.setDate(current.getDate() + 7); // Move to next week
+    }
+
+    return Math.min(count, totalSessions);
+  };
+
   useEffect(() => {
     const fetchSessions = async () => {
       setLoading(true);
@@ -95,16 +162,16 @@ export default function Sessions() {
             const endDate = new Date(classData.endDate);
             const now = new Date();
 
-            const totalWeeks = Math.ceil(
-              (endDate - startDate) / (7 * 24 * 60 * 60 * 1000)
+            const totalSessions = calculateTotalSessions(
+              classData.startDate,
+              classData.endDate,
+              classData.day
             );
-            const passedWeeks = Math.max(
-              0,
-              Math.ceil((now - startDate) / (7 * 24 * 60 * 60 * 1000))
+            const completedSessions = calculateCompletedSessions(
+              classData.startDate,
+              classData.day,
+              totalSessions
             );
-
-            const totalSessions = totalWeeks;
-            const completedSessions = Math.min(passedWeeks, totalWeeks);
 
             const nextSession =
               classData.status === STATUS_TYPES.COMPLETED
@@ -123,6 +190,7 @@ export default function Sessions() {
                 status = STATUS_TYPES.COMPLETED;
               }
             }
+            console.log("Class Data 2:", classData);
 
             return {
               id: classData._id,
@@ -139,7 +207,7 @@ export default function Sessions() {
               completedSessions: completedSessions,
               nextSession: nextSession ? nextSession.toISOString() : null,
               price: `${Math.round(
-                classData.classPrice / totalSessions
+                classData.classPrice
               ).toLocaleString()}đ/buổi`,
               duration: `${classData.duration} phút`,
               notes: "Học sinh cần ôn tập định kỳ và làm bài tập",
@@ -153,6 +221,7 @@ export default function Sessions() {
                 specialized: classData.tutorId.specialized,
                 degree: classData.tutorId.degree,
               },
+              joinUrl: classData.joinUrl,
             };
           });
 
@@ -173,26 +242,61 @@ export default function Sessions() {
   useEffect(() => {
     let result = sessions;
 
+    // Search filter
     if (searchText) {
       const searchLower = searchText.toLowerCase();
       result = result.filter(
         (session) =>
           session.studentName.toLowerCase().includes(searchLower) ||
           session.subject.toLowerCase().includes(searchLower) ||
-          session.level.toLowerCase().includes(searchLower)
+          session.level.toLowerCase().includes(searchLower) ||
+          session.tutorInfo?.name.toLowerCase().includes(searchLower)
       );
     }
 
+    // Status filter
     if (statusFilter !== "all") {
       result = result.filter((session) => session.status === statusFilter);
     }
 
+    // Subject filter
     if (subjectFilter !== "all") {
       result = result.filter((session) => session.subject === subjectFilter);
     }
 
+    // Grade filter
+    if (gradeFilter !== "all") {
+      result = result.filter((session) => session.level.includes(gradeFilter));
+    }
+
+    // Day filter
+    if (dayFilter !== "all") {
+      result = result.filter((session) =>
+        session.daysOfWeek.some((day) =>
+          day.toLowerCase().includes(dayFilter.toLowerCase())
+        )
+      );
+    }
+
+    // Time slot filter
+    if (timeSlotFilter !== "all") {
+      result = result.filter((session) => {
+        const [sessionStart] = session.time.split("-");
+        const [filterStart] = timeSlotFilter.split("-");
+        return sessionStart === filterStart;
+      });
+    }
+
     setFilteredSessions(result);
-  }, [searchText, statusFilter, subjectFilter, sessions]);
+  }, [
+    searchText,
+    statusFilter,
+    subjectFilter,
+    gradeFilter,
+    dayFilter,
+    timeSlotFilter,
+    sessions,
+  ]);
 
   const handleSessionSelect = (session) => {
     setSelectedSession(session);
@@ -245,10 +349,43 @@ export default function Sessions() {
     return total > 0 ? (completed / total) * 100 : 0;
   };
 
+  // Extract unique values for filters
   const subjects = [
     "all",
     ...new Set(sessions.map((session) => session.subject)),
   ];
+  const grades = [
+    "all",
+    ...new Set(sessions.map((session) => session.level.replace("Lớp ", ""))),
+  ];
+  const days = [
+    "all",
+    ...new Set(sessions.flatMap((session) => session.daysOfWeek)),
+  ];
+  const timeSlots = [
+    "all",
+    ...new Set(sessions.map((session) => session.time)),
+  ];
+
+  const resetFilters = () => {
+    setSearchText("");
+    setStatusFilter("all");
+    setSubjectFilter("all");
+    setGradeFilter("all");
+    setDayFilter("all");
+    setTimeSlotFilter("all");
+  };
+
+  const getFilterCount = () => {
+    let count = 0;
+    if (searchText) count++;
+    if (statusFilter !== "all") count++;
+    if (subjectFilter !== "all") count++;
+    if (gradeFilter !== "all") count++;
+    if (dayFilter !== "all") count++;
+    if (timeSlotFilter !== "all") count++;
+    return count;
+  };
 
   return (
     <div className="sessions-container">
@@ -257,43 +394,116 @@ export default function Sessions() {
 
       <div className="sessions-content">
         <div className="sessions-header">
-          <h1>Danh sách lớp học</h1>
+          <div className="sessions-title-section">
+            <h1>Danh sách lớp học</h1>
+            {/* <div className="filter-summary">
+              {getFilterCount() > 0 && (
+                <button className="reset-filters-btn" onClick={resetFilters}>
+                  Xóa bộ lọc ({getFilterCount()})
+                </button>
+              )}
+            </div> */}
+          </div>
+
           <div className="sessions-filters">
+            {/* <div className="filter-row"> */}
             <div className="search-box">
               <AiOutlineSearch />
               <input
                 type="text"
-                placeholder="Tìm theo tên học sinh, môn học..."
+                placeholder="Tìm theo tên học sinh, môn học, gia sư..."
                 value={searchText}
                 onChange={(e) => setSearchText(e.target.value)}
               />
             </div>
-            <div className="filter-group">
-              <select
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
-              >
-                <option value="all">Tất cả trạng thái</option>
-                <option value={STATUS_TYPES.ACTIVE}>Đang diễn ra</option>
-                <option value={STATUS_TYPES.UPCOMING}>Sắp diễn ra</option>
-                <option value={STATUS_TYPES.COMPLETED}>Đã kết thúc</option>
-              </select>
+            {/* </div> */}
+
+            <div className="filter-row">
+              <div className="filter-group">
+                {/* <label>Trạng thái:</label> */}
+                <select
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value)}
+                >
+                  <option value="all">Tất cả trạng thái</option>
+                  <option value={STATUS_TYPES.ACTIVE}>Đang diễn ra</option>
+                  <option value={STATUS_TYPES.UPCOMING}>Sắp diễn ra</option>
+                  <option value={STATUS_TYPES.COMPLETED}>Đã kết thúc</option>
+                </select>
+              </div>
+
+              <div className="filter-group">
+                {/* <label>Môn học:</label> */}
+                <select
+                  value={subjectFilter}
+                  onChange={(e) => setSubjectFilter(e.target.value)}
+                >
+                  <option value="all">Tất cả môn học</option>
+                  {subjects
+                    .filter((subject) => subject !== "all")
+                    .map((subject) => (
+                      <option key={subject} value={subject}>
+                        {subject}
+                      </option>
+                    ))}
+                </select>
+              </div>
+
+              {/* <div className="filter-group">
+                <label>Khối:</label>
+                <select
+                  value={gradeFilter}
+                  onChange={(e) => setGradeFilter(e.target.value)}
+                >
+                  <option value="all">Tất cả </option>
+                  {grades
+                    .filter((grade) => grade !== "all")
+                    .sort((a, b) => parseInt(a) - parseInt(b))
+                    .map((grade) => (
+                      <option key={grade} value={grade}>
+                        Lớp {grade}
+                      </option>
+                    ))}
+                </select>
+              </div> */}
             </div>
-            <div className="filter-group">
-              <select
-                value={subjectFilter}
-                onChange={(e) => setSubjectFilter(e.target.value)}
-              >
-                <option value="all">Tất cả môn học</option>
-                {subjects
-                  .filter((subject) => subject !== "all")
-                  .map((subject) => (
-                    <option key={subject} value={subject}>
-                      {subject}
-                    </option>
-                  ))}
-              </select>
-            </div>
+
+            {/* <div className="filter-row">
+              <div className="filter-group">
+                <label>Ngày học:</label>
+                <select
+                  value={dayFilter}
+                  onChange={(e) => setDayFilter(e.target.value)}
+                >
+                  <option value="all">Tất cả</option>
+                  {days
+                    .filter((day) => day !== "all")
+                    .map((day) => (
+                      <option key={day} value={day}>
+                        {day}
+                      </option>
+                    ))}
+                </select>
+              </div>
+
+              <div className="filter-group">
+                <label>Ca học:</label>
+                <select
+                  value={timeSlotFilter}
+                  onChange={(e) => setTimeSlotFilter(e.target.value)}
+                >
+                  <option value="all">Tất cả</option>
+                  {timeSlots
+                    .filter((slot) => slot !== "all")
+                    .sort()
+                    .map((slot) => (
+                      <option key={slot} value={slot}>
+                        {slot}
+                      </option>
+                    ))}
+                </select>
+              </div>
+            </div> */}
           </div>
         </div>
 
@@ -387,6 +597,7 @@ export default function Sessions() {
                     price: selectedSession.price,
                     notes: selectedSession.notes,
                     onJoinClass: () => handleJoinClass(selectedSession.id),
+                    joinUrl: selectedSession.joinUrl,
                   }}
                   onClose={handleCloseDetail}
                 />

@@ -32,10 +32,20 @@ const formatVietnameseDate = (date) => {
   return `${day} ${month}, ${year}`;
 };
 
+const onJoinClass = (joinUrl) => {
+  console.log("joinUrl: ", joinUrl);
+  if (joinUrl) {
+    window.open(joinUrl, "_blank");
+  } else {
+    alert("Chưa có link vào lớp học");
+  }
+};
+
 const ClassDetailCard = ({ classData, onClose }) => {
   if (!classData) return null;
 
   console.log("classData: ", classData);
+  console.log("Hello");
 
   return (
     <div className="class-detail-card">
@@ -83,7 +93,10 @@ const ClassDetailCard = ({ classData, onClose }) => {
         </div>
       </div>
 
-      <button className="join-class-btn" onClick={classData.onJoinClass}>
+      <button
+        className="join-class-btn"
+        onClick={() => onJoinClass(classData?.joinUrl)}
+      >
         Vào lớp học
       </button>
     </div>

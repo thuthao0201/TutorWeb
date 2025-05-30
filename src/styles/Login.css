@@ -132,7 +132,7 @@
 }
 
 .toggle-password {
-  background: none;
+  background: transparent;
   border: none;
   position: absolute;
   right: 16px;
@@ -146,6 +146,7 @@
 
 .toggle-password:hover {
   color: #555;
+  background-color: transparent;
 }
 
 .form-options {

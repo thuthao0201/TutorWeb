@@ -38,6 +38,10 @@ export const AuthProvider = ({ children }) => {
 
       const { accessToken, refreshToken, user: userData } = response.data;
 
+      if (userData.role !== "tutor") {
+        throw new Error("Chỉ tài khoản gia sư mới có thể đăng nhập");
+      }
+
       // Save tokens and user data
       localStorage.setItem("token", `Bearer ${accessToken}`);
       localStorage.setItem("refreshToken", refreshToken);

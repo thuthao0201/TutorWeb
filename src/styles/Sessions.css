@@ -61,21 +61,35 @@
   outline: none;
 }
 
-.filter-group {
+.filter-row {
   display: flex;
   align-items: center;
-  /* color: red; */
-  /* background-color: #fff; */
-  background-color: #77eb6c;
+  gap: 15px;
+  /* background-color: #77eb6c; */
+  padding: 0;
+}
+
+.filter-group {
+  align-items: center;
+  width: 250px;
   border: 1px solid #ddd;
   border-radius: 8px;
   padding: 0 15px;
 }
+.filter-group label {
+  display: inline-block;
+  align-items: center;
+  padding: 1px 0;
+  font-weight: 500;
+  font-size: 0.95rem;
+  color: #333;
 
+  margin-right: 10px;
+}
 .filter-group select {
   border: none;
   padding: 12px 10px 12px 0;
-  font-size: 2rem;
+  font-size: 0.95rem;
   outline: none;
   appearance: none;
   min-width: 150px;
